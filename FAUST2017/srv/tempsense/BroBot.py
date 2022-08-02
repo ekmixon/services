@@ -4,7 +4,7 @@
 
 import random
 import os
-os.environ['NLTK_DATA'] = os.getcwd() + '/nltk_data'
+os.environ['NLTK_DATA'] = f'{os.getcwd()}/nltk_data'
 
 from textblob import TextBlob
 from tech_support import BadWordException, logger, read, DATA_DIR
@@ -13,25 +13,25 @@ from tech_support import BadWordException, logger, read, DATA_DIR
 class CTFBotBro(object):
     def __init__(self):
         self.help_responses = ['help', 'assist', 'assistance', 'need',]
-        self.blacklist = read(DATA_DIR + '1')
-        self.key_greeting = read(DATA_DIR + '2')
-        self.greeting = read(DATA_DIR + '3')
-        self.undefined = read(DATA_DIR + '4')
-        self.referenced = read(DATA_DIR + '5')
+        self.blacklist = read(f'{DATA_DIR}1')
+        self.key_greeting = read(f'{DATA_DIR}2')
+        self.greeting = read(f'{DATA_DIR}3')
+        self.undefined = read(f'{DATA_DIR}4')
+        self.referenced = read(f'{DATA_DIR}5')
         for i in self.referenced:
-            i.replace('{}', '{}'.format(random.randint(44000, 55000)))
+            i.replace('{}', f'{random.randint(44000, 55000)}')
 
-        self.verbs_with_noun_uncountable = read(DATA_DIR + '6')
+        self.verbs_with_noun_uncountable = read(f'{DATA_DIR}6')
         for i in self.verbs_with_noun_uncountable:
-            i.replace('{}', '{}'.format(random.randint(44000, 55000)))
+            i.replace('{}', f'{random.randint(44000, 55000)}')
 
-        self.verbs_with_noun_undef = read(DATA_DIR + '7')
+        self.verbs_with_noun_undef = read(f'{DATA_DIR}7')
 
-        self.verbs_with_adjective = read(DATA_DIR + '8')
+        self.verbs_with_adjective = read(f'{DATA_DIR}8')
 
-        self.flag_words = read(DATA_DIR + '9')
+        self.flag_words = read(f'{DATA_DIR}9')
 
-        self.repetition = read(DATA_DIR + '10')
+        self.repetition = read(f'{DATA_DIR}10')
 
         self.trigger_deal = ['What deal? I don\'t remember making any deal.',
                              'Tough luck. I suppose you will have to ... deal with it.',
@@ -69,32 +69,32 @@ class CTFBotBro(object):
                 return self.construct_triggered_response(word.lower())
 
     def starts_with_vowel(self, word):
-        return True if word[0] in 'aeiou' else False
+        return word[0] in 'aeiou'
 
     def process_sentence(self, sentence):
-        resp = self.respond(sentence)
-        return resp
+        return self.respond(sentence)
 
     def find_pronoun(self, sent):
         pronoun = None
         self.pronoun = None
         for word, part_of_speech in sent.pos_tags:
-            if part_of_speech == 'PRP' and word.lower() == 'you':
-                pronoun = 'I'
-                self.pronoun = 'I'
-            elif part_of_speech == 'PRP' and (word == 'I' or word.lower() == 'us'):
-                pronoun = 'You'
-            elif part_of_speech == 'PRP' and word.lower() == 'our':
-                pronoun = 'Your'
-                self.pronoun = 'our'
-            elif part_of_speech == 'PRP' and word.lower() == 'we':
-                pronoun = 'We'
-            elif part_of_speech == 'PRP' and (word.lower() == 'he' or word.lower() == 'she' or word.lower() == 'they'):
-                pronoun = word
-            elif part_of_speech == 'PRP' and word.lower() in ('a', 'an'):
-                pronoun = word
-            elif part_of_speech == 'PRP' and word.lower() in ('this', 'that', 'it'):
-                pronoun = 'It'
+            if part_of_speech == 'PRP':
+                if word.lower() == 'you':
+                    pronoun = 'I'
+                    self.pronoun = 'I'
+                elif word == 'I' or word.lower() == 'us':
+                    pronoun = 'You'
+                elif word.lower() == 'our':
+                    pronoun = 'Your'
+                    self.pronoun = 'our'
+                elif word.lower() == 'we':
+                    pronoun = 'We'
+                elif word.lower() in ['he', 'she', 'they']:
+                    pronoun = word
+                elif word.lower() in ('a', 'an'):
+                    pronoun = word
+                elif word.lower() in ('this', 'that', 'it'):
+                    pronoun = 'It'
 
         return pronoun
 
@@ -139,7 +139,14 @@ class CTFBotBro(object):
                 else:
                     resp.append(verb_word)
             elif verb_word in ('help', 'rescue', 'assist'):
-                resp.append(random.choice(['sure are dumb', 'need to %s yourself' % verb_word].extend(self.help_responses)))
+                resp.append(
+                    random.choice(
+                        ['sure are dumb', f'need to {verb_word} yourself'].extend(
+                            self.help_responses
+                        )
+                    )
+                )
+
             elif verb_word in ('had', 'agreed') and pronoun.lower() == 'we':
                 resp.append()
             elif pronoun == 'It':
@@ -147,7 +154,7 @@ class CTFBotBro(object):
 
         if noun:
             pronoun = "an" if self.starts_with_vowel(noun) else "a"
-            resp.append(pronoun + " " + noun)
+            resp.append(f"{pronoun} {noun}")
 
         resp.append(random.choice(("tho", "bro", "lol", "bruh", "smh", "right?")))
 
@@ -167,7 +174,7 @@ class CTFBotBro(object):
         if pronoun == 'I' and (noun or adjective):
             if noun:
                 if self.adj is not None and self.pronoun is not None:
-                    resp = '\n'.join(line for line in self.flag_words)
+                    resp = '\n'.join(self.flag_words)
                 elif random.choice((True, False)):
                     resp = random.choice(self.verbs_with_noun_uncountable).format(
                         **{'noun': noun.pluralize().capitalize()})

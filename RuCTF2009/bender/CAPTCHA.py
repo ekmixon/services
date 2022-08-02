@@ -36,7 +36,6 @@ def generate():
 	while stack > 1:
 		code += '\x01'
 		stack -= 1
-	if stack == 1: code += '\x53'
-	else: code += '\x7C\x00\x00\x53'
+	code += '\x53' if stack == 1 else '\x7C\x00\x00\x53'
 	co = CodeType(3, 3, maxstack, 0x41, code, (9487, 3129, 7828), (), ('a', 'b', 'c'), 'gen.py', 'test', 1, "\x01" * 1000, (), ())
 	return co, FunctionType(co, {}, co.co_name)(1981, 3223, 1298)

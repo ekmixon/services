@@ -45,7 +45,7 @@ def query(request):
 	Allows to upload a new query as audio file 
 	"""
 	# Accept only post requests
-	if "POST" != request.method:
+	if request.method != "POST":
 		return HttpResponseRedirect("/alexa")
 
 	form = AudioQueryForm(request.POST, request.FILES)
@@ -71,6 +71,6 @@ def query(request):
 	# Process audio file
 	response = process(mediumPath, file.content_type, form.data["lang"] if "lang" in form.data else form.fields["lang"].initial)
 	storeResponse(hash, response)
-	logger.info("Storing query /alexa/query/{}".format(hash))
+	logger.info(f"Storing query /alexa/query/{hash}")
 
-	return HttpResponseRedirect("/alexa/query/{}".format(hash))
+	return HttpResponseRedirect(f"/alexa/query/{hash}")

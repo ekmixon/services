@@ -35,12 +35,15 @@ def recognizeText(audioFile):
 		return None
 	except sr.RequestError as e:
 		# Issues with sphinx installation
-		logger.error("Sphinx error: {}".format(e))
+		logger.error(f"Sphinx error: {e}")
 		return None
 
 
 def convertToWav(audioFile):
-	wavFile = os.path.join(os.path.dirname(audioFile), os.path.basename(audioFile) + ".wav")
+	wavFile = os.path.join(
+		os.path.dirname(audioFile), f"{os.path.basename(audioFile)}.wav"
+	)
+
 
 	try:
 		segment = AudioSegment.from_file(audioFile)

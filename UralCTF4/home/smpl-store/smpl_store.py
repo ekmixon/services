@@ -96,22 +96,17 @@ def login(l,s,f):
 def msg_list(l,s,f):
     global login
 
-    if login==None:
-	return '-BAD_LOGIN'
+    if login is None:
+        return '-BAD_LOGIN'
 
     db=start_db()
 
     ret=''
-    
-    dumps=db.get('MSG_USR_' + login)
-    if dumps:
-        msgs=pickle.loads(dumps)
-    else:
-	msgs={}
-    
+
+    msgs = pickle.loads(dumps) if (dumps := db.get(f'MSG_USR_{login}')) else {}
     for x in msgs.keys():
-	msg_from=db.get('MSG_FROM_' + str(x))
-	ret+=msg_from + ' ' + str(x) + "\n"
+        msg_from = db.get(f'MSG_FROM_{str(x)}')
+        ret += f'{msg_from} {str(x)}' + "\n"
 
     ret+='+0'
     return ret
@@ -120,17 +115,16 @@ def usr_list(l,s,f):
     global login
     global re_usr
 
-    if login==None:
-	return '-BAD_LOGIN'
+    if login is None:
+        return '-BAD_LOGIN'
 
     ret="+OK\n"
 
     db=start_db()
     for x in db.keys():
-	m=re_usr.match(x)
-	if(m):
-	    usr=m.group(1)
-	    ret+=usr+"\n"
+        if m := re_usr.match(x):
+            usr=m.group(1)
+            ret+=usr+"\n"
 
     ret+='+0'
     return ret
@@ -246,7 +240,7 @@ def serve(c,a):
 		    c.send(fun(l,c,f)+"\n")
 		else:
 		    c.send("No such command: :(\n")
-		
+
 		s=f.readline().strip("\r\n")
 
 def accept_loop():

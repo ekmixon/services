@@ -18,9 +18,7 @@ def showTable(c):
 
 def getFlag(c, id):
 	c.execute('select flag from bender where id=?', (id,))
-	r = c.fetchone()
-	if r: return r[0]
-	return None
+	return r[0] if (r := c.fetchone()) else None
 
 createTable(c)
 #insertRow(c, "id", "flag")
